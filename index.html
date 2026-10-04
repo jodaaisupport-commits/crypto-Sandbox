@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0e17" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>2D Crypto Sandbox — Trading · Mining · Physik</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">🪙 <span class="logo-full">2D <span class="logo-accent">Crypto Sandbox</span></span><span class="logo-short">Sandbox</span></div>
+  <div class="stats">
+    <div class="stat"><label>Cash</label><b id="cash">$5.000</b></div>
+    <div class="stat"><label>Portfolio</label><b id="portfolio">$0</b></div>
+    <div class="stat highlight"><label>Vermögen</label><b id="networth">$5.000</b></div>
+    <div class="stat"><label>Rendite</label><b id="pnl">+0%</b></div>
+  </div>
+  <div class="top-actions">
+    <button id="btnMoon" title="Moon-Event auslösen">🌙</button>
+    <button id="btnCrash" title="Crash-Event auslösen">📉</button>
+    <button id="btnAirdrop" title="Airdrop regnen lassen">🎁</button>
+    <button id="btnBoom" title="Explosion / durchschütteln">💥</button>
+    <button id="btnReset" title="Neustart">↺</button>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- LINKS: Sandbox -->
+  <section class="sandbox-panel">
+    <div class="toolbar">
+      <div class="coin-select" id="coinSelect" role="tablist" aria-label="Coin wählen"></div>
+      <div class="buy-box">
+        <input id="buyAmount" type="number" inputmode="decimal" value="500" min="10" step="10" title="Kaufbetrag in USD" aria-label="Kaufbetrag in USD" />
+        <button id="btnBuy">Kaufen ↓</button>
+        <button id="btnSellMode" class="ghost gold" title="Tipp-Modus: Schubsen oder Verkaufen">✋ Schubsen</button>
+        <button id="btnSellAll" class="ghost">Alle verkaufen</button>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="sandbox"></canvas>
+      <div id="hint" class="hint">
+        <span id="hintText">👆 Tippe ins Feld zum <b>Schubsen</b> · Coin <b>ziehen</b> zum Werfen ·
+        <b>Antippen</b> auf Coin = verkaufen (✋/💰-Modus umschaltbar) · Kaufen lässt Coins von oben regnen!</span>
+        <button id="hintClose">Los geht's!</button>
+      </div>
+    </div>
+    <div class="controls">
+      <label>🪐 Gravitation <input id="gravity" type="range" min="0" max="2000" value="900" /> <span id="gravityVal">900</span></label>
+      <label>⏩ Tempo <input id="speed" type="range" min="10" max="300" value="100" /> <span id="speedVal">1×</span></label>
+      <button id="btnPausePhys">⏸ Physik</button>
+      <button id="btnPauseMarket">⏸ Markt</button>
+      <span class="counter"><span id="coinCount">0</span> Coins</span>
+    </div>
+  </section>
+
+  <!-- RECHTS: Markt -->
+  <aside class="side">
+    <div class="card">
+      <h2>🎯 Quests <span id="levelBadge" class="hash">Lv 1</span></h2>
+      <div class="xpbar" title="Erfahrung"><div id="xpfill"></div><span id="xptext">0 XP</span></div>
+      <div id="quests"></div>
+    </div>
+
+    <div class="card">
+      <h2>📈 Markt <span class="live" id="liveDot">● LIVE</span></h2>
+      <div id="market"></div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Chart <span class="tabs"><button data-chart="equity" class="active">Vermögen</button><button data-chart="BTC">BTC</button><button data-chart="ETH">ETH</button><button data-chart="SOL">SOL</button><button data-chart="DOGE">DOGE</button></span></h2>
+      <canvas id="chart" height="140"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>🌐 Multiplayer <span id="mpStatus" class="hash">🔴 offline</span></h2>
+      <div class="mp-row">
+        <input id="playerName" maxlength="16" placeholder="Dein Name" aria-label="Spielername" />
+        <button id="btnHost">Raum erstellen</button>
+      </div>
+      <details class="mp-details">
+        <summary>✉️ Einladungs-Code (Host)</summary>
+        <textarea id="hostCode" readonly placeholder="Erst „Raum erstellen" drücken …"></textarea>
+        <div class="mp-row">
+          <button id="btnCopyHost">Code kopieren</button>
+          <button id="btnNewInvite" title="Weiteren Code für mehr Spieler erzeugen">＋ Code</button>
+        </div>
+        <textarea id="answerCode" placeholder="Antwort-Code des Freundes hier einfügen …"></textarea>
+        <button id="btnAccept">Antwort annehmen</button>
+      </details>
+      <details class="mp-details">
+        <summary>🚪 Raum beitreten (Gast)</summary>
+        <textarea id="joinCode" placeholder="Einladungs-Code des Hosts hier einfügen …"></textarea>
+        <div class="mp-row">
+          <button id="btnJoin">Beitreten</button>
+          <button id="btnCopyAnswer">Antwort kopieren</button>
+        </div>
+        <textarea id="myAnswer" readonly placeholder="Dein Antwort-Code erscheint hier …"></textarea>
+      </details>
+      <p class="muted">P2P direkt (WebRTC, kein Server): Code per Messenger teilen, Antwort zurückschicken. Events, Gifts & Chat werden live synchronisiert.</p>
+      <div id="peers"></div>
+      <div id="chatlog"></div>
+      <div class="mp-row">
+        <input id="chatInput" maxlength="120" placeholder="Chat-Nachricht …" aria-label="Chat-Nachricht" />
+        <button id="btnChat">Senden</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⛏️ Mining-Tycoon <span id="hashrate" class="hash">0 H/s</span></h2>
+      <p class="muted" id="mineInfo">Slots 0/2 · 🔬 0 RP · ×1.00 Ertrag</p>
+      <details class="mp-details" open>
+        <summary>🔧 Rigs <span class="muted" id="rigInfo"></span></summary>
+        <div id="rigList"></div>
+      </details>
+      <details class="mp-details">
+        <summary>🏭 Gebäude <span class="muted" id="slotInfo"></span></summary>
+        <div id="buildList"></div>
+      </details>
+      <details class="mp-details">
+        <summary>🔬 Forschung <span class="muted" id="rpInfo"></span></summary>
+        <div id="researchList"></div>
+      </details>
+      <div class="shop">
+        <div>⚡ Turbo <b>×<span id="turboVal">1.0</span> Speed</b></div>
+        <button id="btnTurbo">🔒 Turbo-Technik forschen</button>
+      </div>
+    </div>
+
+    <div class="card log-card">
+      <h2>🧾 Events</h2>
+      <ul id="log"></ul>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  2D Crypto Sandbox · Paper-Trading, kein Echtgeld · Coins sind dein Wallet: was im Feld liegt, gehört dir · Stand: <span id="tick">0</span>s · 💾 Autosave aktiv
+</footer>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
